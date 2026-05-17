@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Clarou</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F5F2ED;--surface:#FFF;--surface2:#EEEBE4;--surface3:#E5E1D7;
+  --text:#1A1712;--text2:#68635C;--text3:#A59F96;
+  --accent:#2A5F47;--accent-light:#E2F0E9;--accent-text:#1A3D2D;
+  --border:rgba(26,23,18,0.09);--border2:rgba(26,23,18,0.05);
+  --amber:#A8510A;--amber-light:#FDF0E0;--amber-text:#7A3A06;
+  --blue:#1840B0;--blue-light:#EBF0FF;--blue-text:#1134A0;
+  --warn-bg:#FDE9E9;--warn-text:#8B1A1A;
+  --r:16px;--rs:10px;
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#100F0D;--surface:#1A1916;--surface2:#222019;--surface3:#2B2924;
+  --text:#EDE9E1;--text2:#94908A;--text3:#56524C;
+  --accent:#4DAF7C;--accent-light:#162B20;--accent-text:#7DD9A8;
+  --border:rgba(237,233,225,0.07);--border2:rgba(237,233,225,0.04);
+  --amber:#D4850A;--amber-light:#261800;--amber-text:#E8A84A;
+  --blue:#7BA4F0;--blue-light:#0C1830;--blue-text:#7BA4F0;
+  --warn-bg:#220C0C;--warn-text:#F08080;
+}
+html,body{height:100%;background:var(--bg);font-family:var(--sans);color:var(--text);-webkit-font-smoothing:antialiased;}
+#app{max-width:430px;min-height:100vh;margin:0 auto;position:relative;background:var(--bg);}
+.screen{display:none;flex-direction:column;min-height:100vh;}
+.screen.active{display:flex;}
+.scroll{flex:1;overflow-y:auto;padding:20px 20px 100px;scrollbar-width:none;}
+.scroll::-webkit-scrollbar{display:none;}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0;min-height:52px;}
+.top-bar h2{font-family:var(--serif);font-size:20px;font-weight:400;}
+.logo{font-family:var(--serif);font-size:22px;color:var(--accent);}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;border-radius:var(--r);border:none;font-family:var(--sans);font-size:16px;font-weight:500;cursor:pointer;transition:all .18s;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:active{opacity:.85;}
+.btn-secondary{background:var(--surface2);color:var(--text);}
+.btn-ghost{background:transparent;color:var(--text2);font-size:14px;}
+.btn-sm{padding:10px 16px;font-size:14px;width:auto;border-radius:var(--rs);}
+.card{background:var(--surface);border-radius:var(--r);padding:20px;border:1px solid var(--border);}
+.tag{display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:500;}
+.tag-green{background:var(--accent-light);color:var(--accent-text);}
+.tag-amber{background:var(--amber-light);color:var(--amber-text);}
+.tag-blue{background:var(--blue-light);color:var(--blue-text);}
+input[type=text],textarea{width:100%;background:var(--surface2);border:1.5px solid transparent;border-radius:var(--rs);padding:14px;font-family:var(--sans);font-size:15px;color:var(--text);outline:none;transition:border-color .15s;resize:none;}
+input[type=text]:focus,textarea:focus{border-color:var(--accent);}
+textarea{min-height:90px;}
+.voice-wrap{position:relative;}
+.voice-wrap textarea,.voice-wrap input{padding-right:48px;}
+.mic-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:20px;padding:6px;color:var(--text3);transition:color .15s;}
+.mic-btn.listening{color:var(--accent);animation:pulse 1s infinite;}
+.mic-btn-ta{top:14px;transform:none;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.sep{height:1px;background:var(--border);margin:16px 0;}
+.step-dot{width:6px;height:6px;border-radius:50%;background:var(--border);transition:background .2s;}
+.step-dot.active{background:var(--accent);}
+.step-dots{display:flex;gap:6px;justify-content:center;padding:16px 0 8px;}
+.fab{position:fixed;bottom:28px;right:calc(50% - 215px + 20px);width:48px;height:48px;border-radius:50%;background:var(--surface);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.08);z-index:50;transition:transform .15s;}
+.fab:active{transform:scale(.93);}
+@media(max-width:430px){.fab{right:20px;}}
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:60;opacity:0;pointer-events:none;transition:opacity .25s;}
+.drawer-overlay.open{opacity:1;pointer-events:all;}
+.drawer{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:430px;background:var(--surface);border-radius:20px 20px 0 0;z-index:61;transition:transform .3s cubic-bezier(.32,.72,0,1);padding-bottom:env(safe-area-inset-bottom,0px);}
+.drawer.open{transform:translateX(-50%) translateY(0);}
+.drawer-handle{width:36px;height:4px;border-radius:2px;background:var(--border);margin:12px auto 4px;}
+.drawer-head{padding:8px 20px 16px;display:flex;align-items:center;justify-content:space-between;}
+.drawer-body{padding:0 20px 24px;max-height:75vh;overflow-y:auto;}
+.note-type-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.note-chip{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);background:var(--surface);transition:all .15s;}
+.note-chip.active{border-color:var(--accent);color:var(--accent-text);background:var(--accent-light);}
+.note-item{padding:12px 0;border-bottom:1px solid var(--border2);}
+.note-item:last-child{border-bottom:none;}
+.ritual-step{display:none;}
+.ritual-step.active{display:block;}
+.progress-bar{height:3px;background:var(--border);border-radius:2px;margin:0 20px;}
+.progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s;}
+.priority-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px;cursor:pointer;transition:all .15s;position:relative;}
+.priority-card.selected{border-color:var(--accent);background:var(--accent-light);}
+.priority-card .goal-badge{position:absolute;top:10px;right:10px;font-size:11px;padding:3px 8px;}
+.loop-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border2);}
+.loop-item:last-child{border-bottom:none;}
+.loop-check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-top:1px;transition:all .15s;}
+.loop-check.done{background:var(--accent);border-color:var(--accent);color:#fff;}
+.action-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px;}
+.slot-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.slot-btn{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);font-size:13px;cursor:pointer;background:var(--surface);color:var(--text2);transition:all .15s;}
+.slot-btn.picked{border-color:var(--accent);color:var(--accent-text);background:var(--accent-light);}
+.slot-btn.confirmed{border-color:var(--accent);color:#fff;background:var(--accent);}
+.home-greeting{padding:32px 20px 8px;}
+.home-greeting h1{font-family:var(--serif);font-size:32px;font-weight:400;line-height:1.2;margin-bottom:8px;}
+.nudge-card{background:var(--amber-light);border:1px solid rgba(168,81,10,.15);border-radius:var(--r);padding:16px;margin-bottom:14px;}
+.review-tab-bar{display:flex;gap:0;border-bottom:1px solid var(--border);padding:0 20px;}
+.rtab{padding:12px 16px;font-size:14px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.rtab.active{color:var(--accent);border-color:var(--accent);}
+.thinks-panel{background:var(--accent-light);border:1px solid rgba(42,95,71,.15);border-radius:var(--r);padding:16px;margin-bottom:14px;}
+.thinks-panel h4{font-size:13px;font-weight:600;color:var(--accent-text);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.thinks-panel p{font-size:14px;color:var(--accent-text);line-height:1.5;}
+/* Goal setting styles */
+.goal-category{background:var(--surface);border:2px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px;cursor:pointer;transition:all .18s;display:flex;align-items:flex-start;gap:14px;}
+.goal-category.active{border-color:var(--accent);background:var(--accent-light);}
+.goal-category.active .goal-icon{background:var(--accent);color:#fff;}
+.goal-icon{width:40px;height:40px;border-radius:10px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;transition:all .18s;}
+.goal-category-body{flex:1;}
+.goal-category-body h4{font-size:15px;font-weight:600;margin-bottom:3px;}
+.goal-category-body p{font-size:13px;color:var(--text2);line-height:1.4;}
+.goal-label-input{margin-top:12px;display:none;}
+.goal-category.active .goal-label-input{display:block;}
+.goal-summary-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-light);border:1px solid rgba(42,95,71,.2);border-radius:20px;padding:6px 12px;font-size:13px;color:var(--accent-text);margin:4px;}
+.goals-preview{background:var(--surface2);border-radius:var(--r);padding:16px;margin-top:16px;}
+.goals-preview h4{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em;}
+nav.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surface);border-top:1px solid var(--border);display:flex;padding:8px 0 env(safe-area-inset-bottom,8px);z-index:40;}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;cursor:pointer;background:none;border:none;color:var(--text3);font-size:11px;font-family:var(--sans);transition:color .15s;}
+.nav-btn.active{color:var(--accent);}
+.nav-btn svg{width:22px;height:22px;}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border2);}
+.settings-row:last-child{border-bottom:none;}
+.toggle{width:44px;height:26px;border-radius:13px;background:var(--surface3);border:none;cursor:pointer;position:relative;transition:background .2s;}
+.toggle.on{background:var(--accent);}
+.toggle::after{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.toggle.on::after{transform:translateX(18px);}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ONBOARDING -->
+<div id="ob" class="screen active">
+  <div class="top-bar"><span class="logo">clarou</span><div class="step-dots" id="ob-dots"></div></div>
+  <div class="scroll" id="ob-scroll">
+    <!-- Step 0: Welcome -->
+    <div class="ob-step" id="obs-0">
+      <div style="padding:40px 0 32px;text-align:center;">
+        <div style="font-size:48px;margin-bottom:16px;">🌿</div>
+        <h1 style="font-family:var(--serif);font-size:34px;font-weight:400;line-height:1.2;margin-bottom:14px;">Close your mental tabs<br>before Monday.</h1>
+        <p style="font-size:16px;color:var(--text2);line-height:1.6;">A Sunday ritual that helps you end the week with clarity — not dread.</p>
+      </div>
+      <button class="btn btn-primary" onclick="obNext()">Get started</button>
+      <button class="btn btn-ghost" style="margin-top:8px;" onclick="obNext()">I already have an account</button>
+    </div>
+    <!-- Step 1: Name -->
+    <div class="ob-step" id="obs-1" style="display:none;">
+      <h2 style="font-family:var(--serif);font-size:28px;font-weight:400;margin-bottom:8px;line-height:1.3;">What should we call you?</h2>
+      <p style="color:var(--text2);font-size:15px;margin-bottom:28px;line-height:1.5;">Clarou is personal. Let's start there.</p>
+      <div class="voice-wrap" style="margin-bottom:16px;">
+        <input type="text" id="ob-name" placeholder="Your first name" oninput="obCheckName()"/>
+      </div>
+      <div style="margin-bottom:16px;">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:10px;">What best describes you?</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;" id="role-chips">
+          <div class="note-chip" onclick="pickRole(this,'Working parent')">Working parent</div>
+          <div class="note-chip" onclick="pickRole(this,'Professional')">Professional</div>
+          <div class="note-chip" onclick="pickRole(this,'Entrepreneur')">Entrepreneur</div>
+          <div class="note-chip" onclick="pickRole(this,'Manager')">Manager</div>
+          <div class="note-chip" onclick="pickRole(this,'Other')">Other</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="ob-name-btn" onclick="obNext()" disabled>Continue</button>
+    </div>
+    <!-- Step 2: Goals (NEW) -->
+    <div class="ob-step" id="obs-2" style="display:none;">
+      <h2 style="font-family:var(--serif);font-size:28px;font-weight:400;margin-bottom:8px;line-height:1.3;">What are you optimising for?</h2>
+      <p style="color:var(--text2);font-size:15px;margin-bottom:6px;line-height:1.5;">Pick up to 3 areas that matter most right now. Clarou will use these to help you prioritise — not just organise.</p>
+      <p style="color:var(--text3);font-size:13px;margin-bottom:24px;">You can change these anytime in Settings.</p>
+
+      <div id="goal-categories">
+        <div class="goal-category" onclick="toggleGoal(this,'work')" data-key="work">
+          <div class="goal-icon">💼</div>
+          <div class="goal-category-body">
+            <h4>Work &amp; Career</h4>
+            <p>Projects, growth, impact at work</p>
+            <div class="goal-label-input">
+              <input type="text" placeholder="e.g. Ship Clarou, get promoted, lead the team…" onclick="event.stopPropagation()" oninput="updateGoalLabel('work',this.value)" style="margin-top:0;"/>
+            </div>
+          </div>
+        </div>
+        <div class="goal-category" onclick="toggleGoal(this,'family')" data-key="family">
+          <div class="goal-icon">🏠</div>
+          <div class="goal-category-body">
+            <h4>Family &amp; Home</h4>
+            <p>Presence, relationships, home life</p>
+            <div class="goal-label-input">
+              <input type="text" placeholder="e.g. Be present as a parent, date nights…" onclick="event.stopPropagation()" oninput="updateGoalLabel('family',this.value)" style="margin-top:0;"/>
+            </div>
+          </div>
+        </div>
+        <div class="goal-category" onclick="toggleGoal(this,'health')" data-key="health">
+          <div class="goal-icon">🏃</div>
+          <div class="goal-category-body">
+            <h4>Health &amp; Energy</h4>
+            <p>Body, mind, sleep, movement</p>
+            <div class="goal-label-input">
+              <input type="text" placeholder="e.g. Cycle twice a week, sleep 8h, dive…" onclick="event.stopPropagation()" oninput="updateGoalLabel('health',this.value)" style="margin-top:0;"/>
+            </div>
+          </div>
+        </div>
+        <div class="goal-category" onclick="toggleGoal(this,'self')" data-key="self">
+          <div class="goal-icon">🌱</div>
+          <div class="goal-category-body">
+            <h4>Personal Growth</h4>
+            <p>Learning, creativity, side projects</p>
+            <div class="goal-label-input">
+              <input type="text" placeholder="e.g. Read more, learn a language…" onclick="event.stopPropagation()" oninput="updateGoalLabel('self',this.value)" style="margin-top:0;"/>
+            </div>
+          </div>
+        </div>
+        <div class="goal-category" onclick="toggleGoal(this,'social')" data-key="social">
+          <div class="goal-icon">👥</div>
+          <div class="goal-category-body">
+            <h4>Social &amp; Community</h4>
+            <p>Friendships, giving back, belonging</p>
+            <div class="goal-label-input">
+              <input type="text" placeholder="e.g. See friends monthly, volunteer…" onclick="event.stopPropagation()" oninput="updateGoalLabel('social',this.value)" style="margin-top:0;"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="goals-preview" id="goals-preview" style="display:none;">
+        <h4>Your goals</h4>
+        <div id="goals-preview-chips"></div>
+      </div>
+      <div style="height:16px;"></div>
+      <button class="btn btn-primary" id="ob-goals-btn" onclick="obNext()" disabled>Continue</button>
+      <button class="btn btn-ghost" style="margin-top:8px;" onclick="obNext()">Skip for now</button>
+    </div>
+    <!-- Step 3: Week builder -->
+    <div class="ob-step" id="obs-3" style="display:none;">
+      <h2 style="font-family:var(--serif);font-size:28px;font-weight:400;margin-bottom:8px;line-height:1.3;">What does your typical week look like?</h2>
+      <p style="color:var(--text2);font-size:15px;margin-bottom:24px;line-height:1.5;">This helps Clarou understand your rhythm. Add the things that fill your week — work, family, personal.</p>
+      <div id="wb-items"></div>
+      <button class="btn btn-secondary" style="margin-bottom:16px;" onclick="wbAdd()">+ Add something</button>
+      <button class="btn btn-primary" onclick="obNext()">Continue</button>
+    </div>
+    <!-- Step 4: Ready -->
+    <div class="ob-step" id="obs-4" style="display:none;">
+      <div style="padding:40px 0 24px;text-align:center;">
+        <div style="font-size:48px;margin-bottom:16px;">✨</div>
+        <h1 style="font-family:var(--serif);font-size:30px;font-weight:400;line-height:1.3;margin-bottom:14px;" id="ready-title">You're ready, George.</h1>
+        <p style="font-size:16px;color:var(--text2);line-height:1.6;">Your Sunday ritual is set. Come back this weekend and Clarou will help you close the week properly.</p>
+      </div>
+      <div id="ready-goals-block" style="margin-bottom:24px;display:none;">
+        <div class="thinks-panel">
+          <h4>🎯 Your focus areas</h4>
+          <div id="ready-goals-list" style="margin-top:4px;"></div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="goHome()">Open Clarou</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="home" class="screen">
+  <div class="top-bar">
+    <span class="logo">clarou</span>
+    <button style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2);" onclick="showSettings()">⚙️</button>
+  </div>
+  <div class="scroll">
+    <div class="home-greeting">
+      <h1 id="home-greeting-text">Good morning.</h1>
+      <p style="color:var(--text2);font-size:15px;" id="home-sub">Your Sunday ritual is waiting.</p>
+    </div>
+    <div id="home-nudge"></div>
+    <div id="home-goals-block" style="margin-bottom:14px;display:none;">
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <h3 style="font-size:14px;font-weight:600;color:var(--text2);">YOUR FOCUS</h3>
+          <button style="background:none;border:none;font-size:12px;color:var(--accent);cursor:pointer;" onclick="showGoalsEditor()">Edit</button>
+        </div>
+        <div id="home-goals-chips"></div>
+      </div>
+    </div>
+    <div id="home-cta" style="margin-bottom:16px;"></div>
+    <div id="home-priorities" style="margin-bottom:16px;display:none;">
+      <div class="card">
+        <h3 style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:14px;">THIS WEEK'S PRIORITIES</h3>
+        <div id="priority-list"></div>
+      </div>
+    </div>
+  </div>
+  <button class="fab" onclick="openNotes()" title="Add a note">✎</button>
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="showTab('home',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </button>
+    <button class="nav-btn" onclick="showTab('ritual-home',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Ritual
+    </button>
+    <button class="nav-btn" onclick="showTab('review',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Review
+    </button>
+  </nav>
+</div>
+
+<!-- RITUAL HOME -->
+<div id="ritual-home" class="screen">
+  <div class="top-bar"><span class="logo">clarou</span></div>
+  <div class="scroll">
+    <div style="padding:24px 0 16px;">
+      <h1 style="font-family:var(--serif);font-size:30px;font-weight:400;line-height:1.3;margin-bottom:10px;">Sunday ritual</h1>
+      <p style="color:var(--text2);font-size:15px;line-height:1.6;">This is your weekly clarity moment. Set aside 10–15 minutes.<br>No rushing. Just you and the week.</p>
+    </div>
+    <div class="card" style="margin-bottom:14px;" id="ritual-start-card">
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:6px;">Ready to begin?</h3>
+      <p style="font-size:14px;color:var(--text2);margin-bottom:16px;">5 short steps. Clear head by the end.</p>
+      <button class="btn btn-primary" onclick="startRitual()">Begin this week's ritual</button>
+    </div>
+    <div id="rh-goals-card" style="display:none;margin-bottom:14px;">
+      <div class="thinks-panel">
+        <h4>🎯 Today you're optimising for</h4>
+        <div id="rh-goals-list" style="margin-top:6px;"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:14px;" id="ritual-notes-card" style="display:none;">
+      <h3 style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:10px;">QUEUED NOTES</h3>
+      <div id="ritual-queued-notes"></div>
+    </div>
+  </div>
+  <button class="fab" onclick="openNotes()">✎</button>
+  <nav class="bottom-nav">
+    <button class="nav-btn" onclick="showTab('home',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </button>
+    <button class="nav-btn active" onclick="showTab('ritual-home',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Ritual
+    </button>
+    <button class="nav-btn" onclick="showTab('review',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Review
+    </button>
+  </nav>
+</div>
+
+<!-- RITUAL FLOW -->
+<div id="ritual" class="screen">
+  <div class="top-bar">
+    <button style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);" onclick="exitRitual()">←</button>
+    <span id="ritual-step-label" style="font-size:14px;color:var(--text2);">Step 1 of 5</span>
+    <div style="width:32px;"></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="ritual-progress" style="width:20%;"></div></div>
+  <div class="scroll">
+    <!-- Step 1: Open loops -->
+    <div class="ritual-step active" id="rs-1">
+      <div style="padding:24px 0 16px;">
+        <div class="tag tag-blue" style="margin-bottom:12px;">Open loops</div>
+        <h2 style="font-family:var(--serif);font-size:26px;font-weight:400;line-height:1.3;margin-bottom:10px;">What's still open from this week?</h2>
+        <p style="color:var(--text2);font-size:14px;line-height:1.6;">Unfinished things, unanswered questions, things you said you'd do. Get them out.</p>
+      </div>
+      <div id="mid-notes-context"></div>
+      <div id="loop-list"></div>
+      <button class="btn btn-secondary" style="margin-bottom:20px;" onclick="addLoop()">+ Add open loop</button>
+      <button class="btn btn-primary" onclick="ritualNext(2)">Next →</button>
+    </div>
+    <!-- Step 2: Whispers -->
+    <div class="ritual-step" id="rs-2">
+      <div style="padding:24px 0 16px;">
+        <div class="tag tag-amber" style="margin-bottom:12px;">The whispers</div>
+        <h2 style="font-family:var(--serif);font-size:26px;font-weight:400;line-height:1.3;margin-bottom:10px;">What's been quietly nagging you?</h2>
+        <p style="color:var(--text2);font-size:14px;line-height:1.6;">The important things rarely scream. They whisper. What have you been putting off that actually matters?</p>
+      </div>
+      <div class="voice-wrap">
+        <textarea id="whispers-text" placeholder="Write freely — what keeps surfacing in the background?"></textarea>
+        <button class="mic-btn mic-btn-ta" onclick="toggleVoice('whispers-text',this)">🎤</button>
+      </div>
+      <div style="height:20px;"></div>
+      <button class="btn btn-primary" onclick="ritualNext(3)">Next →</button>
+    </div>
+    <!-- Step 3: Priorities -->
+    <div class="ritual-step" id="rs-3">
+      <div style="padding:24px 0 16px;">
+        <div class="tag tag-green" style="margin-bottom:12px;">Priorities</div>
+        <h2 style="font-family:var(--serif);font-size:26px;font-weight:400;line-height:1.3;margin-bottom:10px;">What are your 3 priorities for next week?</h2>
+        <p style="color:var(--text2);font-size:14px;line-height:1.6;">From everything you've named — what are the 3 things that will actually move the needle?</p>
+      </div>
+      <div id="thinks-panel-wrap"></div>
+      <div id="priority-picks"></div>
+      <div id="shift-suggestions"></div>
+      <button class="btn btn-secondary" style="margin-bottom:20px;" onclick="addPriority()">+ Add a priority</button>
+      <button class="btn btn-primary" id="prio-next-btn" onclick="ritualNext(4)" disabled>Next →</button>
+    </div>
+    <!-- Step 4: Word -->
+    <div class="ritual-step" id="rs-4">
+      <div style="padding:24px 0 16px;">
+        <div class="tag tag-amber" style="margin-bottom:12px;">Your word</div>
+        <h2 style="font-family:var(--serif);font-size:26px;font-weight:400;line-height:1.3;margin-bottom:10px;">One word for the week ahead.</h2>
+        <p style="color:var(--text2);font-size:14px;line-height:1.6;">Not a goal. Not a plan. A feeling, an intention, a compass. What do you want this week to feel like?</p>
+      </div>
+      <div class="voice-wrap">
+        <input type="text" id="word-input" placeholder="e.g. Focus, Presence, Momentum, Rest…" oninput="checkWordNext()"/>
+        <button class="mic-btn" onclick="toggleVoice('word-input',this)">🎤</button>
+      </div>
+      <div style="height:20px;"></div>
+      <button class="btn btn-primary" id="word-next-btn" onclick="ritualNext(5)" disabled>Next →</button>
+    </div>
+    <!-- Step 5: Actions -->
+    <div class="ritual-step" id="rs-5">
+      <div style="padding:24px 0 16px;">
+        <div class="tag tag-green" style="margin-bottom:12px;">Actions</div>
+        <h2 style="font-family:var(--serif);font-size:26px;font-weight:400;line-height:1.3;margin-bottom:10px;">When will you do them?</h2>
+        <p style="color:var(--text2);font-size:14px;line-height:1.6;">For each priority, pick a day. That's all — just a day.</p>
+      </div>
+      <div id="action-cards"></div>
+      <div style="height:20px;"></div>
+      <button class="btn btn-primary" onclick="finishRitual()">Close the week ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- REVIEW -->
+<div id="review" class="screen">
+  <div class="top-bar"><h2>Review</h2></div>
+  <div class="review-tab-bar">
+    <div class="rtab active" onclick="reviewTab('timeline',this)">Timeline</div>
+    <div class="rtab" onclick="reviewTab('loops',this)">Open loops</div>
+    <div class="rtab" onclick="reviewTab('words',this)">Words</div>
+    <div class="rtab" onclick="reviewTab('notes',this)">Notes</div>
+  </div>
+  <div class="scroll">
+    <div id="rv-timeline"></div>
+    <div id="rv-loops" style="display:none;"></div>
+    <div id="rv-words" style="display:none;"></div>
+    <div id="rv-notes" style="display:none;"></div>
+  </div>
+  <button class="fab" onclick="openNotes()">✎</button>
+  <nav class="bottom-nav">
+    <button class="nav-btn" onclick="showTab('home',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </button>
+    <button class="nav-btn" onclick="showTab('ritual-home',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Ritual
+    </button>
+    <button class="nav-btn active" onclick="showTab('review',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Review
+    </button>
+  </nav>
+</div>
+
+<!-- SETTINGS SCREEN -->
+<div id="settings" class="screen">
+  <div class="top-bar">
+    <button style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);" onclick="goHome()">←</button>
+    <h2>Settings</h2>
+    <div style="width:32px;"></div>
+  </div>
+  <div class="scroll">
+    <div class="card" style="margin-bottom:14px;">
+      <h3 style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:14px;">PROFILE</h3>
+      <div class="settings-row">
+        <span>Name</span>
+        <span id="settings-name" style="color:var(--text2);font-size:14px;"></span>
+      </div>
+      <div class="settings-row">
+        <span>Role</span>
+        <span id="settings-role" style="color:var(--text2);font-size:14px;"></span>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:14px;" id="settings-goals-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <h3 style="font-size:14px;font-weight:600;color:var(--text2);">YOUR GOALS</h3>
+        <button style="background:none;border:none;font-size:13px;color:var(--accent);cursor:pointer;" onclick="showGoalsEditor()">Edit goals</button>
+      </div>
+      <div id="settings-goals-list"></div>
+    </div>
+    <div class="card" style="margin-bottom:14px;">
+      <h3 style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:14px;">PREFERENCES</h3>
+      <div class="settings-row">
+        <div><p style="font-size:15px;font-weight:500;">Dark mode</p></div>
+        <button class="toggle" id="dark-toggle" onclick="toggleDark()"></button>
+      </div>
+      <div class="settings-row">
+        <div><p style="font-size:15px;font-weight:500;">Voice input</p><p style="font-size:12px;color:var(--text3);" id="voice-status">Checking…</p></div>
+        <span style="font-size:13px;color:var(--text2);" id="voice-badge">—</span>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:14px;">
+      <h3 style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:14px;">DATA</h3>
+      <div class="settings-row">
+        <div><p style="font-size:15px;font-weight:500;">Reset all data</p><p style="font-size:12px;color:var(--text3);">Removes all rituals and settings</p></div>
+        <button class="btn btn-sm" style="background:var(--warn-bg);color:var(--warn-text);border:none;" onclick="resetAll()">Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GOALS EDITOR SCREEN -->
+<div id="goals-editor" class="screen">
+  <div class="top-bar">
+    <button style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);" onclick="closeGoalsEditor()">←</button>
+    <h2>Your goals</h2>
+    <div style="width:32px;"></div>
+  </div>
+  <div class="scroll">
+    <p style="color:var(--text2);font-size:15px;margin-bottom:20px;line-height:1.5;">These are your OKRs. Clarou uses them to help you prioritise what actually moves the needle — not just what's loudest.</p>
+    <div id="goals-editor-categories"></div>
+    <button class="btn btn-primary" onclick="saveGoalsEditor()" style="margin-top:8px;">Save goals</button>
+  </div>
+</div>
+
+<!-- NOTES DRAWER -->
+<div class="drawer-overlay" id="notes-overlay" onclick="closeNotes()"></div>
+<div class="drawer" id="notes-drawer">
+  <div class="drawer-handle"></div>
+  <div class="drawer-head">
+    <h3 style="font-size:16px;font-weight:600;">Add a note</h3>
+    <button style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);" onclick="closeNotes()">×</button>
+  </div>
+  <div class="drawer-body">
+    <div class="note-type-row">
+      <div class="note-chip active" onclick="pickNoteType(this,'thought')">💭 Thought</div>
+      <div class="note-chip" onclick="pickNoteType(this,'shift')">🔄 Priority shift</div>
+      <div class="note-chip" onclick="pickNoteType(this,'win')">🏆 Win</div>
+      <div class="note-chip" onclick="pickNoteType(this,'flag')">🚩 Flag</div>
+    </div>
+    <div class="voice-wrap">
+      <textarea id="note-text" placeholder="What's on your mind?" style="min-height:80px;"></textarea>
+      <button class="mic-btn mic-btn-ta" onclick="toggleVoice('note-text',this)">🎤</button>
+    </div>
+    <button class="btn btn-primary" style="margin-top:12px;" onclick="saveNote()">Save note</button>
+    <div id="saved-notes-list" style="margin-top:20px;"></div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let state = {
+  name:'', role:'',
+  goals:{}, // { work:{label:'Ship Clarou'}, family:{label:'...'}, ... }
+  wbItems:[],
+  rituals:[],
+  notes:[],
+  currentRitual:null,
+  darkMode:false
+};
+let obStep=0, selItems=[], scheduledItems={}, loops=[], activeRec=null;
+let wbState={}, wbEditing={};
+const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat'];
+
+// ─── GOAL CATEGORIES META ────────────────────────────────────────────────────
+const GOAL_META = {
+  work:  {icon:'💼', label:'Work & Career',   hint:'e.g. Ship Clarou, get promoted, lead the team…'},
+  family:{icon:'🏠', label:'Family & Home',   hint:'e.g. Be present as a parent, date nights…'},
+  health:{icon:'🏃', label:'Health & Energy', hint:'e.g. Cycle twice a week, sleep 8h, dive…'},
+  self:  {icon:'🌱', label:'Personal Growth', hint:'e.g. Read more, learn a language…'},
+  social:{icon:'👥', label:'Social & Community',hint:'e.g. See friends monthly, volunteer…'}
+};
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+(function boot(){
+  const saved = localStorage.getItem('clarou_v3');
+  if(saved){ state=JSON.parse(saved); }
+  if(state.darkMode) document.documentElement.setAttribute('data-theme','dark');
+  if(state.name){
+    goHome();
+    renderHome();
+  } else {
+    showScreen('ob');
+    renderObDots();
+  }
+  checkVoice();
+})();
+
+function save(){ localStorage.setItem('clarou_v3',JSON.stringify(state)); }
+
+// ─── SCREENS ──────────────────────────────────────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(id);
+  if(el){ el.classList.add('active'); el.scrollTop=0; }
+}
+function showTab(id, btn){
+  showScreen(id);
+  document.querySelectorAll('nav .nav-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  if(id==='home') renderHome();
+  if(id==='review') renderReview();
+  if(id==='ritual-home') renderRitualHome();
+}
+function goHome(){ showScreen('home'); renderHome(); }
+function showSettings(){
+  showScreen('settings');
+  document.getElementById('settings-name').textContent = state.name||'—';
+  document.getElementById('settings-role').textContent = state.role||'—';
+  renderSettingsGoals();
+  const dt=document.getElementById('dark-toggle');
+  if(state.darkMode) dt.classList.add('on'); else dt.classList.remove('on');
+}
+
+// ─── ONBOARDING ───────────────────────────────────────────────────────────────
+function renderObDots(){
+  const total=5, el=document.getElementById('ob-dots');
+  el.innerHTML='';
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='step-dot'+(i===obStep?' active':'');
+    el.appendChild(d);
+  }
+}
+function obNext(){
+  if(obStep===0){ obStep=1; showObStep(1); }
+  else if(obStep===1){
+    state.name=document.getElementById('ob-name').value.trim();
+    save();
+    obStep=2; showObStep(2);
+  }
+  else if(obStep===2){
+    obStep=3; showObStep(3);
+    renderWbItems();
+  }
+  else if(obStep===3){
+    obStep=4; showObStep(4);
+    document.getElementById('ready-title').textContent='You\'re ready, '+(state.name||'there')+'.' ;
+    renderReadyGoals();
+  }
+  else if(obStep===4){ goHome(); }
+  renderObDots();
+}
+function showObStep(n){
+  document.querySelectorAll('.ob-step').forEach(s=>s.style.display='none');
+  const el=document.getElementById('obs-'+n);
+  if(el) el.style.display='block';
+}
+function obCheckName(){
+  const v=document.getElementById('ob-name').value.trim();
+  document.getElementById('ob-name-btn').disabled=!v;
+}
+function pickRole(el,role){
+  document.querySelectorAll('#role-chips .note-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  state.role=role;
+}
+
+// ─── GOAL SETTING ─────────────────────────────────────────────────────────────
+function toggleGoal(el, key){
+  const maxGoals=3;
+  const currentCount=Object.keys(state.goals).length;
+  if(el.classList.contains('active')){
+    el.classList.remove('active');
+    delete state.goals[key];
+  } else {
+    if(currentCount>=maxGoals){
+      el.style.animation='shake .3s';
+      setTimeout(()=>el.style.animation='',300);
+      return;
+    }
+    el.classList.add('active');
+    if(!state.goals[key]) state.goals[key]={label:''};
+  }
+  updateGoalsPreview();
+  document.getElementById('ob-goals-btn').disabled=Object.keys(state.goals).length===0;
+  save();
+}
+function updateGoalLabel(key, val){
+  if(!state.goals[key]) state.goals[key]={label:''};
+  state.goals[key].label=val;
+  save();
+  updateGoalsPreview();
+}
+function updateGoalsPreview(){
+  const keys=Object.keys(state.goals);
+  const preview=document.getElementById('goals-preview');
+  const chips=document.getElementById('goals-preview-chips');
+  if(!preview||!chips) return;
+  if(keys.length===0){ preview.style.display='none'; return; }
+  preview.style.display='block';
+  chips.innerHTML=keys.map(k=>{
+    const meta=GOAL_META[k];
+    const lbl=state.goals[k].label||meta.label;
+    return `<span class="goal-summary-chip">${meta.icon} ${lbl}</span>`;
+  }).join('');
+}
+function renderReadyGoals(){
+  const keys=Object.keys(state.goals);
+  const block=document.getElementById('ready-goals-block');
+  const list=document.getElementById('ready-goals-list');
+  if(!block||!list) return;
+  if(keys.length===0){ block.style.display='none'; return; }
+  block.style.display='block';
+  list.innerHTML=keys.map(k=>{
+    const meta=GOAL_META[k];
+    const lbl=state.goals[k].label||meta.label;
+    return `<div style="font-size:14px;color:var(--accent-text);padding:4px 0;">${meta.icon} ${lbl}</div>`;
+  }).join('');
+}
+
+// ─── GOALS EDITOR (Settings) ──────────────────────────────────────────────────
+function showGoalsEditor(){
+  showScreen('goals-editor');
+  renderGoalsEditorCategories();
+}
+function closeGoalsEditor(){
+  showScreen('settings');
+  renderSettingsGoals();
+}
+function renderGoalsEditorCategories(){
+  const container=document.getElementById('goals-editor-categories');
+  if(!container) return;
+  container.innerHTML=Object.entries(GOAL_META).map(([key,meta])=>{
+    const active=!!state.goals[key];
+    const currentLabel=active?(state.goals[key].label||''):'';
+    return `
+    <div class="goal-category${active?' active':''}" onclick="toggleGoalEditor(this,'${key}')" data-key="${key}" id="gec-${key}">
+      <div class="goal-icon">${meta.icon}</div>
+      <div class="goal-category-body">
+        <h4>${meta.label}</h4>
+        <p>${meta.hint.replace('e.g. ','e.g. ').split(',')[0]}…</p>
+        <div class="goal-label-input">
+          <input type="text" value="${currentLabel}" placeholder="${meta.hint}" onclick="event.stopPropagation()" oninput="updateGoalLabelEditor('${key}',this.value)"/>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleGoalEditor(el, key){
+  const maxGoals=3;
+  const currentCount=Object.keys(state.goals).length;
+  if(el.classList.contains('active')){
+    el.classList.remove('active');
+    delete state.goals[key];
+  } else {
+    if(currentCount>=maxGoals){
+      el.style.animation='shake .3s';
+      setTimeout(()=>el.style.animation='',300);
+      return;
+    }
+    el.classList.add('active');
+    if(!state.goals[key]) state.goals[key]={label:''};
+  }
+  save();
+}
+function updateGoalLabelEditor(key, val){
+  if(!state.goals[key]) state.goals[key]={label:''};
+  state.goals[key].label=val;
+  save();
+}
+function saveGoalsEditor(){
+  save();
+  closeGoalsEditor();
+}
+function renderSettingsGoals(){
+  const list=document.getElementById('settings-goals-list');
+  if(!list) return;
+  const keys=Object.keys(state.goals);
+  if(keys.length===0){
+    list.innerHTML='<p style="font-size:14px;color:var(--text3);">No goals set yet. Tap "Edit goals" to add.</p>';
+    return;
+  }
+  list.innerHTML=keys.map(k=>{
+    const meta=GOAL_META[k];
+    const lbl=state.goals[k].label||meta.label;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border2);">
+      <span style="font-size:20px;">${meta.icon}</span>
+      <span style="font-size:14px;">${lbl}</span>
+    </div>`;
+  }).join('');
+}
+
+// ─── WEEK BUILDER ─────────────────────────────────────────────────────────────
+function renderWbItems(){
+  const el=document.getElementById('wb-items');
+  if(!el) return;
+  if(state.wbItems.length===0){ el.innerHTML=''; return; }
+  el.innerHTML=state.wbItems.map((item,i)=>`
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
+      <input type="text" value="${item}" style="flex:1;" oninput="wbUpdate(${i},this.value)" placeholder="e.g. Monday standup, school run…"/>
+      <button onclick="wbRemove(${i})" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text3);">×</button>
+    </div>`).join('');
+}
+function wbAdd(){
+  state.wbItems.push('');
+  save();
+  renderWbItems();
+  setTimeout(()=>{
+    const inputs=document.querySelectorAll('#wb-items input');
+    if(inputs.length) inputs[inputs.length-1].focus();
+  },50);
+}
+function wbUpdate(i,v){ state.wbItems[i]=v; save(); }
+function wbRemove(i){ state.wbItems.splice(i,1); save(); renderWbItems(); }
+
+// ─── HOME ─────────────────────────────────────────────────────────────────────
+function renderHome(){
+  const day=new Date().getDay();
+  const isSun=day===0, isSat=day===6;
+  const gr=document.getElementById('home-greeting-text');
+  const sub=document.getElementById('home-sub');
+  const cta=document.getElementById('home-cta');
+  const hr=new Date().getHours();
+  const tod=hr<12?'morning':hr<17?'afternoon':'evening';
+  gr.textContent=`Good ${tod}, ${state.name||'there'}.`;
+
+  const unsurfaced=state.notes.filter(n=>!n.surfaced);
+  const nudge=document.getElementById('home-nudge');
+  if(unsurfaced.length>0){
+    nudge.innerHTML=`<div class="nudge-card" style="margin-bottom:14px;">
+      <p style="font-size:14px;font-weight:500;color:var(--amber-text);">📝 ${unsurfaced.length} note${unsurfaced.length>1?'s':''} will surface in your next ritual</p>
+    </div>`;
+  } else { nudge.innerHTML=''; }
+
+  // Goals block
+  const goalsBlock=document.getElementById('home-goals-block');
+  const goalChips=document.getElementById('home-goals-chips');
+  const goalKeys=Object.keys(state.goals||{});
+  if(goalKeys.length>0 && goalsBlock && goalChips){
+    goalsBlock.style.display='block';
+    goalChips.innerHTML=goalKeys.map(k=>{
+      const meta=GOAL_META[k];
+      const lbl=(state.goals[k]&&state.goals[k].label)||meta.label;
+      return `<span class="goal-summary-chip">${meta.icon} ${lbl}</span>`;
+    }).join('');
+  } else if(goalsBlock){ goalsBlock.style.display='none'; }
+
+  if(isSun||isSat){
+    sub.textContent=isSun?'Your ritual is waiting.':'One more day — ritual opens tomorrow.';
+    cta.innerHTML=isSun?`<button class="btn btn-primary" onclick="showTab('ritual-home', null)">Begin Sunday ritual →</button>`
+      :`<div class="card"><p style="font-size:14px;color:var(--text2);">Come back tomorrow for your Sunday ritual.</p></div>`;
+  } else {
+    sub.textContent='Ritual opens on Sunday. Keep noting what matters.';
+    cta.innerHTML=`<div class="card"><p style="font-size:14px;color:var(--text2);">Your next ritual is on Sunday. In the meantime, capture notes with the ✎ button.</p></div>`;
+  }
+
+  const last=state.rituals[state.rituals.length-1];
+  const hp=document.getElementById('home-priorities');
+  const pl=document.getElementById('priority-list');
+  if(last&&last.priorities&&last.priorities.length>0){
+    hp.style.display='block';
+    pl.innerHTML=last.priorities.map(p=>{
+      const done=p.done||false;
+      const meta=p.goalKey?GOAL_META[p.goalKey]:null;
+      return `<div class="loop-item">
+        <div class="loop-check${done?' done':''}" onclick="togglePrioDone('${p.id}')">
+          ${done?'✓':''}
+        </div>
+        <div style="flex:1;">
+          <p style="font-size:15px;${done?'text-decoration:line-through;color:var(--text3);':''}">${p.name}</p>
+          ${p.day?`<p style="font-size:12px;color:var(--text3);margin-top:2px;">${p.day}</p>`:''}
+          ${meta?`<span class="tag tag-green" style="font-size:11px;margin-top:4px;padding:2px 7px;">${meta.icon} ${(state.goals[p.goalKey]&&state.goals[p.goalKey].label)||meta.label}</span>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  } else { hp.style.display='none'; }
+}
+
+function togglePrioDone(id){
+  const last=state.rituals[state.rituals.length-1];
+  if(!last) return;
+  const p=last.priorities.find(x=>x.id===id);
+  if(p){ p.done=!p.done; save(); renderHome(); }
+}
+
+// ─── RITUAL HOME ──────────────────────────────────────────────────────────────
+function renderRitualHome(){
+  const goalKeys=Object.keys(state.goals||{});
+  const rhg=document.getElementById('rh-goals-card');
+  const rhl=document.getElementById('rh-goals-list');
+  if(goalKeys.length>0 && rhg && rhl){
+    rhg.style.display='block';
+    rhl.innerHTML=goalKeys.map(k=>{
+      const meta=GOAL_META[k];
+      const lbl=(state.goals[k]&&state.goals[k].label)||meta.label;
+      return `<div style="font-size:14px;color:var(--accent-text);padding:3px 0;">${meta.icon} ${lbl}</div>`;
+    }).join('');
+  } else if(rhg){ rhg.style.display='none'; }
+
+  const unsurfaced=state.notes.filter(n=>!n.surfaced&&n.type!=='win');
+  const nc=document.getElementById('ritual-notes-card');
+  const qn=document.getElementById('ritual-queued-notes');
+  if(unsurfaced.length>0 && nc && qn){
+    nc.style.display='block';
+    qn.innerHTML=unsurfaced.slice(0,3).map(n=>`
+      <div class="note-item"><p style="font-size:13px;color:var(--text2);">${noteTypeEmoji(n.type)} ${n.text}</p></div>
+    `).join('')+(unsurfaced.length>3?`<p style="font-size:12px;color:var(--text3);margin-top:8px;">+${unsurfaced.length-3} more</p>`:'');
+  } else if(nc){ nc.style.display='none'; }
+}
+
+// ─── RITUAL FLOW ──────────────────────────────────────────────────────────────
+function startRitual(){
+  loops=[];
+  selItems=[];
+  scheduledItems={};
+  state.currentRitual={date:new Date().toISOString(),priorities:[],loops:[],word:'',notes:[]};
+  showScreen('ritual');
+  ritualShowStep(1);
+  renderLoops();
+  renderMidNotesContext();
+}
+function exitRitual(){ goHome(); }
+function ritualShowStep(n){
+  document.querySelectorAll('.ritual-step').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById('rs-'+n);
+  if(el) el.classList.add('active');
+  document.getElementById('ritual-step-label').textContent=`Step ${n} of 5`;
+  document.getElementById('ritual-progress').style.width=(n*20)+'%';
+}
+function ritualNext(n){
+  if(n===3){ buildPriorities(); }
+  if(n===4){ buildActionCards(); }
+  ritualShowStep(n);
+  if(n===2) document.getElementById('word-next-btn').disabled=true;
+}
+function finishRitual(){
+  const last=state.currentRitual;
+  last.priorities=selItems.map(s=>({...s,day:scheduledItems[s.id]?.label||''}));
+  last.word=document.getElementById('word-input').value.trim();
+  last.loops=loops;
+  state.rituals.push(last);
+  state.notes.forEach(n=>{ if(!n.surfaced) n.surfaced=true; });
+  state.currentRitual=null;
+  save();
+  goHome();
+}
+
+// Step 1 – loops
+function renderLoops(){
+  const el=document.getElementById('loop-list');
+  if(!el) return;
+  el.innerHTML=loops.map((l,i)=>`
+    <div class="loop-item">
+      <div class="loop-check${l.done?' done':''}" onclick="toggleLoop(${i})">${l.done?'✓':''}</div>
+      <div style="flex:1;"><p style="font-size:15px;">${l.text}</p></div>
+      <button onclick="removeLoop(${i})" style="background:none;border:none;font-size:16px;color:var(--text3);cursor:pointer;">×</button>
+    </div>`).join('');
+}
+function addLoop(){
+  const text=prompt('What\'s open?');
+  if(text&&text.trim()) loops.push({text:text.trim(),done:false,id:'l'+Date.now()});
+  renderLoops();
+}
+function toggleLoop(i){ loops[i].done=!loops[i].done; renderLoops(); }
+function removeLoop(i){ loops.splice(i,1); renderLoops(); }
+function renderMidNotesContext(){
+  const el=document.getElementById('mid-notes-context');
+  if(!el) return;
+  const unsurfaced=state.notes.filter(n=>!n.surfaced);
+  if(unsurfaced.length===0){ el.innerHTML=''; return; }
+  el.innerHTML=`<div class="nudge-card" style="margin-bottom:16px;">
+    <p style="font-size:13px;font-weight:600;color:var(--amber-text);margin-bottom:8px;">📝 From your mid-week notes</p>
+    ${unsurfaced.map(n=>`<p style="font-size:13px;color:var(--amber-text);padding:4px 0;">• ${noteTypeEmoji(n.type)} ${n.text}</p>`).join('')}
+  </div>`;
+}
+
+// Step 3 – priorities
+function buildPriorities(){
+  const goalKeys=Object.keys(state.goals||{});
+  const whispers=document.getElementById('whispers-text').value.trim();
+  const panel=document.getElementById('thinks-panel-wrap');
+  const shifts=state.notes.filter(n=>!n.surfaced&&n.type==='shift');
+
+  // Build Clarou Thinks message
+  let thinksMsg='';
+  if(goalKeys.length>0){
+    const goalNames=goalKeys.map(k=>(state.goals[k].label||GOAL_META[k].label));
+    thinksMsg=`You said you're optimising for <strong>${goalNames.join(', ')}</strong>. As you pick your priorities, ask: does each one move any of these forward — or is it just noise?`;
+    if(loops.filter(l=>!l.done).length>2){
+      thinksMsg+=` You have ${loops.filter(l=>!l.done).length} open loops. You can't do everything. What's the one that would unblock the most?`;
+    }
+  } else {
+    thinksMsg=`You have ${loops.filter(l=>!l.done).length} open loops and some whispers. Which 3 will you actually do?`;
+  }
+
+  panel.innerHTML=`<div class="thinks-panel" style="margin-bottom:16px;">
+    <h4>✦ Clarou thinks</h4>
+    <p>${thinksMsg}</p>
+  </div>`;
+
+  // Shift suggestions
+  const ss=document.getElementById('shift-suggestions');
+  if(shifts.length>0){
+    ss.innerHTML=`<div style="margin-bottom:12px;"><p style="font-size:13px;color:var(--text2);margin-bottom:8px;">From your notes:</p>
+      ${shifts.map(n=>`<div class="priority-card" onclick="addPriorityFromNote('${n.id}','${n.text.replace(/'/g,'&#39;')}')">
+        <span class="tag tag-amber" style="font-size:11px;margin-bottom:6px;">from note</span>
+        <p style="font-size:14px;">${n.text}</p>
+      </div>`).join('')}
+    </div>`;
+  } else { ss.innerHTML=''; }
+
+  renderPriorityPicks();
+}
+function renderPriorityPicks(){
+  const el=document.getElementById('priority-picks');
+  if(!el) return;
+  el.innerHTML=selItems.map((item,i)=>{
+    const meta=item.goalKey?GOAL_META[item.goalKey]:null;
+    return `<div class="priority-card selected">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+        <p style="font-size:15px;font-weight:500;">${item.name}</p>
+        <button onclick="removePriority(${i})" style="background:none;border:none;font-size:16px;cursor:pointer;color:var(--text3);flex-shrink:0;">×</button>
+      </div>
+      ${meta?`<span class="goal-badge tag tag-green">${meta.icon} ${(state.goals[item.goalKey]&&state.goals[item.goalKey].label)||meta.label}</span>`:''}
+    </div>`;
+  }).join('');
+  document.getElementById('prio-next-btn').disabled=selItems.length===0;
+}
+function addPriority(){
+  if(selItems.length>=3){ alert('Maximum 3 priorities. Remove one first.'); return; }
+  const text=prompt('What\'s the priority?');
+  if(!text||!text.trim()) return;
+  // Ask which goal it connects to
+  const goalKeys=Object.keys(state.goals||{});
+  let goalKey=null;
+  if(goalKeys.length>0){
+    const opts=goalKeys.map((k,i)=>`${i+1}: ${GOAL_META[k].icon} ${(state.goals[k].label)||GOAL_META[k].label}`).join('\n');
+    const ans=prompt(`Which goal does this connect to?\n${opts}\n0: None`);
+    const idx=parseInt(ans)-1;
+    if(idx>=0&&idx<goalKeys.length) goalKey=goalKeys[idx];
+  }
+  selItems.push({id:'p'+Date.now(),name:text.trim(),goalKey});
+  renderPriorityPicks();
+}
+function removePriority(i){ selItems.splice(i,1); renderPriorityPicks(); }
+function addPriorityFromNote(noteId, text){
+  if(selItems.length>=3){ alert('Maximum 3 priorities.'); return; }
+  if(selItems.find(s=>s.id===noteId)) return;
+  selItems.push({id:noteId,name:text});
+  renderPriorityPicks();
+}
+
+// Step 4 – word
+function checkWordNext(){
+  const v=document.getElementById('word-input').value.trim();
+  document.getElementById('word-next-btn').disabled=!v;
+}
+
+// Step 5 – actions
+function buildActionCards(){
+  const el=document.getElementById('action-cards');
+  if(!el) return;
+  el.innerHTML=selItems.map(item=>{
+    const meta=item.goalKey?GOAL_META[item.goalKey]:null;
+    return `<div class="action-card" id="ac-${item.id}">
+      <p style="font-size:15px;font-weight:500;margin-bottom:4px;">${item.name}</p>
+      ${meta?`<span class="tag tag-green" style="font-size:11px;margin-bottom:8px;">${meta.icon} ${(state.goals[item.goalKey]&&state.goals[item.goalKey].label)||meta.label}</span>`:''}
+      <p style="font-size:13px;color:var(--text2);margin-bottom:8px;">Which day?</p>
+      <div class="slot-row">
+        ${DAYS.map(d=>`<button class="slot-btn${scheduledItems[item.id]?.label===d?' confirmed':''}" onclick="pickSlot('${item.id}','${d}',this)">${d}</button>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+function pickSlot(id, label, btn){
+  const card=document.getElementById('ac-'+id);
+  card.querySelectorAll('.slot-btn').forEach(b=>b.classList.remove('picked','confirmed'));
+  btn.classList.add('confirmed');
+  scheduledItems[id]={label};
+}
+
+// ─── REVIEW ───────────────────────────────────────────────────────────────────
+let activeReviewTab='timeline';
+function reviewTab(tab, btn){
+  activeReviewTab=tab;
+  ['timeline','loops','words','notes'].forEach(t=>{
+    const el=document.getElementById('rv-'+t);
+    if(el) el.style.display=t===tab?'block':'none';
+  });
+  document.querySelectorAll('.rtab').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+function renderReview(){
+  reviewTab(activeReviewTab, null);
+  // Timeline
+  const tl=document.getElementById('rv-timeline');
+  if(tl){
+    if(state.rituals.length===0){
+      tl.innerHTML='<p style="color:var(--text3);font-size:14px;padding:24px 0;">No rituals completed yet.</p>';
+    } else {
+      tl.innerHTML=[...state.rituals].reverse().map(r=>`
+        <div class="card" style="margin-bottom:12px;">
+          <p style="font-size:12px;color:var(--text3);margin-bottom:6px;">${new Date(r.date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'short'})}</p>
+          ${r.word?`<p style="font-family:var(--serif);font-size:20px;margin-bottom:10px;">${r.word}</p>`:''}
+          ${r.priorities&&r.priorities.length>0?r.priorities.map(p=>{
+            const meta=p.goalKey?GOAL_META[p.goalKey]:null;
+            return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border2);">
+              <span style="font-size:13px;flex:1;">${p.name}${p.day?' · '+p.day:''}</span>
+              ${meta?`<span class="tag tag-green" style="font-size:11px;">${meta.icon}</span>`:''}
+              ${p.done?'<span style="color:var(--accent);font-size:12px;">✓</span>':''}
+            </div>`;
+          }).join(''):''}
+        </div>`).join('');
+    }
+  }
+  // Loops
+  const lo=document.getElementById('rv-loops');
+  if(lo){
+    const allLoops=state.rituals.flatMap(r=>r.loops||[]);
+    lo.innerHTML=allLoops.length===0?'<p style="color:var(--text3);font-size:14px;padding:24px 0;">No open loops recorded yet.</p>':
+      allLoops.map(l=>`<div class="loop-item"><div class="loop-check${l.done?' done':''}">${l.done?'✓':''}</div><p style="font-size:14px;">${l.text}</p></div>`).join('');
+  }
+  // Words
+  const wo=document.getElementById('rv-words');
+  if(wo){
+    const words=state.rituals.filter(r=>r.word).map(r=>({word:r.word,date:r.date}));
+    wo.innerHTML=words.length===0?'<p style="color:var(--text3);font-size:14px;padding:24px 0;">No words yet.</p>':
+      words.reverse().map(w=>`<div style="padding:12px 0;border-bottom:1px solid var(--border2);">
+        <p style="font-family:var(--serif);font-size:22px;">${w.word}</p>
+        <p style="font-size:12px;color:var(--text3);">${new Date(w.date).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</p>
+      </div>`).join('');
+  }
+  // Notes
+  const no=document.getElementById('rv-notes');
+  if(no){
+    no.innerHTML=state.notes.length===0?'<p style="color:var(--text3);font-size:14px;padding:24px 0;">No notes yet.</p>':
+      [...state.notes].reverse().map(n=>`<div class="note-item">
+        <p style="font-size:13px;font-weight:500;color:var(--text2);">${noteTypeEmoji(n.type)} ${n.type} · ${new Date(n.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</p>
+        <p style="font-size:14px;margin-top:3px;">${n.text}</p>
+        ${n.surfaced?'<span class="tag tag-green" style="font-size:11px;margin-top:4px;">surfaced</span>':''}
+      </div>`).join('');
+  }
+}
+
+// ─── NOTES DRAWER ─────────────────────────────────────────────────────────────
+let activeNoteType='thought';
+function openNotes(){
+  document.getElementById('notes-overlay').classList.add('open');
+  document.getElementById('notes-drawer').classList.add('open');
+  renderSavedNotes();
+}
+function closeNotes(){
+  document.getElementById('notes-overlay').classList.remove('open');
+  document.getElementById('notes-drawer').classList.remove('open');
+}
+function pickNoteType(el, type){
+  document.querySelectorAll('.note-type-row .note-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  activeNoteType=type;
+}
+function saveNote(){
+  const text=document.getElementById('note-text').value.trim();
+  if(!text) return;
+  state.notes.push({id:'n'+Date.now(),type:activeNoteType,text,ts:Date.now(),surfaced:false});
+  save();
+  document.getElementById('note-text').value='';
+  renderSavedNotes();
+}
+function renderSavedNotes(){
+  const el=document.getElementById('saved-notes-list');
+  if(!el) return;
+  const unsurfaced=state.notes.filter(n=>!n.surfaced);
+  if(unsurfaced.length===0){ el.innerHTML=''; return; }
+  el.innerHTML=`<p style="font-size:12px;color:var(--text3);margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em;">Queued for Sunday</p>`+
+    unsurfaced.map(n=>`<div class="note-item">
+      <p style="font-size:13px;color:var(--text2);">${noteTypeEmoji(n.type)} ${n.text}</p>
+    </div>`).join('');
+}
+function noteTypeEmoji(t){ return {thought:'💭',shift:'🔄',win:'🏆',flag:'🚩'}[t]||'📝'; }
+
+// ─── VOICE ────────────────────────────────────────────────────────────────────
+let recognition=null, activeField=null, activeMicBtn=null;
+function checkVoice(){
+  const ok='webkitSpeechRecognition' in window||'SpeechRecognition' in window;
+  const s=document.getElementById('voice-status');
+  const b=document.getElementById('voice-badge');
+  if(s) s.textContent=ok?'Available in this browser':'Not available in this browser';
+  if(b) b.textContent=ok?'✓ On':'Off';
+}
+function toggleVoice(fieldId, btn){
+  if(activeRec&&activeField===fieldId){
+    activeRec.stop(); activeRec=null;
+    btn.classList.remove('listening'); btn.textContent='🎤';
+    activeField=null; activeMicBtn=null; return;
+  }
+  if(activeRec){ activeRec.stop(); if(activeMicBtn){ activeMicBtn.classList.remove('listening'); activeMicBtn.textContent='🎤'; } }
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ alert('Voice not available. Try Chrome or Safari.'); return; }
+  recognition=new SR();
+  recognition.continuous=true; recognition.interimResults=true; recognition.lang='en-US';
+  activeRec=recognition; activeField=fieldId; activeMicBtn=btn;
+  btn.classList.add('listening'); btn.textContent='⏹';
+  const el=document.getElementById(fieldId);
+  const isTA=el.tagName==='TEXTAREA';
+  let interim='';
+  recognition.onresult=e=>{
+    let final='',int='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) final+=e.results[i][0].transcript;
+      else int+=e.results[i][0].transcript;
+    }
+    if(final) el.value=(el.value+' '+final).trim();
+    interim=int;
+    if(isTA){ const ev=new Event('input'); el.dispatchEvent(ev); }
+    else{ const ev=new Event('input'); el.dispatchEvent(ev); }
+  };
+  recognition.onerror=()=>{ btn.classList.remove('listening'); btn.textContent='🎤'; activeRec=null; };
+  recognition.onend=()=>{ btn.classList.remove('listening'); btn.textContent='🎤'; if(activeRec===recognition) activeRec=null; };
+  recognition.start();
+}
+
+// ─── SETTINGS ─────────────────────────────────────────────────────────────────
+function toggleDark(){
+  state.darkMode=!state.darkMode;
+  if(state.darkMode) document.documentElement.setAttribute('data-theme','dark');
+  else document.documentElement.removeAttribute('data-theme');
+  const dt=document.getElementById('dark-toggle');
+  if(state.darkMode) dt.classList.add('on'); else dt.classList.remove('on');
+  save();
+}
+function resetAll(){
+  if(!confirm('Reset all data? This cannot be undone.')) return;
+  localStorage.removeItem('clarou_v3');
+  location.reload();
+}
+</script>
+</body>
+</html>

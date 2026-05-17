@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Clarou · Feedback</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F5F2ED;
+  --surface:#FFFFFF;
+  --surface2:#EEEBE4;
+  --text:#1A1712;
+  --text2:#68635C;
+  --text3:#A59F96;
+  --accent:#2A5F47;
+  --accent-light:#E2F0E9;
+  --accent-dark:#1A3D2D;
+  --border:rgba(26,23,18,0.09);
+  --amber:#A8510A;
+  --amber-light:#FDF0E0;
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+  --r:14px;
+}
+html{background:var(--bg);font-family:var(--sans);color:var(--text);-webkit-font-smoothing:antialiased;}
+body{min-height:100vh;background:var(--bg);}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;}
+.screen.active{display:block;}
+
+/* ── WELCOME ── */
+#welcome{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;padding:40px 28px;text-align:center;
+}
+.logo{font-family:var(--serif);font-size:28px;color:var(--accent);margin-bottom:48px;letter-spacing:-.01em;}
+#welcome h1{font-family:var(--serif);font-size:32px;font-weight:400;line-height:1.2;margin-bottom:14px;}
+#welcome p{font-size:15px;color:var(--text2);line-height:1.7;margin-bottom:36px;max-width:320px;}
+.pill-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:40px;}
+.pill{background:var(--accent-light);color:var(--accent-dark);font-size:12px;font-weight:500;padding:6px 14px;border-radius:20px;}
+.btn-start{
+  background:var(--accent);color:#fff;border:none;border-radius:var(--r);
+  font-family:var(--sans);font-size:16px;font-weight:600;padding:18px 40px;
+  cursor:pointer;width:100%;max-width:320px;transition:opacity .15s;
+  letter-spacing:.01em;
+}
+.btn-start:active{opacity:.85;}
+.name-field{
+  width:100%;max-width:320px;background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--r);padding:16px;font-family:var(--sans);font-size:15px;
+  color:var(--text);outline:none;margin-bottom:16px;transition:border-color .15s;
+}
+.name-field:focus{border-color:var(--accent);}
+
+/* ── FORM ── */
+#form-screen{padding:0 0 80px;}
+.form-header{
+  background:var(--accent-dark);padding:24px 24px 20px;position:sticky;top:0;z-index:10;
+}
+.form-header .logo{color:#fff;margin-bottom:0;font-size:22px;}
+.progress-wrap{margin-top:14px;}
+.progress-track{height:3px;background:rgba(255,255,255,.2);border-radius:2px;}
+.progress-fill{height:3px;background:#fff;border-radius:2px;transition:width .4s ease;}
+.progress-label{font-size:11px;color:rgba(255,255,255,.6);margin-top:6px;}
+
+.section-block{padding:28px 24px 0;}
+.section-label{
+  font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--accent);background:var(--accent-light);display:inline-block;
+  padding:5px 12px;border-radius:20px;margin-bottom:20px;
+}
+
+.q-block{margin-bottom:28px;}
+.q-text{font-size:16px;font-weight:600;color:var(--text);line-height:1.4;margin-bottom:6px;}
+.q-hint{font-size:13px;color:var(--text3);margin-bottom:12px;line-height:1.5;}
+
+textarea.ans,input.ans{
+  width:100%;background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--r);padding:14px 16px;font-family:var(--sans);font-size:15px;
+  color:var(--text);outline:none;resize:none;transition:border-color .15s;
+  -webkit-appearance:none;
+}
+textarea.ans{min-height:96px;}
+textarea.ans:focus,input.ans:focus{border-color:var(--accent);}
+
+.choice-grid{display:flex;flex-direction:column;gap:10px;}
+.choice-btn{
+  background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);
+  padding:14px 18px;font-family:var(--sans);font-size:15px;color:var(--text2);
+  cursor:pointer;text-align:left;transition:all .15s;-webkit-appearance:none;
+}
+.choice-btn.selected{
+  border-color:var(--accent);background:var(--accent-light);
+  color:var(--accent-dark);font-weight:500;
+}
+
+.scale-row{display:flex;gap:8px;justify-content:space-between;}
+.scale-btn{
+  flex:1;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;
+  padding:14px 4px;font-family:var(--sans);font-size:16px;font-weight:600;
+  color:var(--text2);cursor:pointer;text-align:center;transition:all .15s;-webkit-appearance:none;
+}
+.scale-btn.selected{border-color:var(--accent);background:var(--accent);color:#fff;}
+.scale-labels{display:flex;justify-content:space-between;margin-top:8px;}
+.scale-labels span{font-size:11px;color:var(--text3);}
+
+.section-sep{height:1px;background:var(--border);margin:28px 24px 0;}
+
+/* ── SUBMIT BAR ── */
+.submit-bar{
+  position:fixed;bottom:0;left:0;right:0;background:var(--surface);
+  border-top:1px solid var(--border);padding:16px 24px;
+  padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));
+}
+.btn-submit{
+  width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--r);
+  font-family:var(--sans);font-size:16px;font-weight:600;padding:18px;
+  cursor:pointer;transition:opacity .15s;
+}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed;}
+.btn-submit:not(:disabled):active{opacity:.85;}
+
+/* ── ADMIN ── */
+#admin-screen{padding:24px;min-height:100vh;}
+#admin-screen h1{font-family:var(--serif);font-size:28px;font-weight:400;margin-bottom:6px;}
+#admin-screen p{color:var(--text2);font-size:14px;margin-bottom:24px;}
+.admin-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:20px;margin-bottom:14px;
+}
+.admin-card h3{font-size:14px;font-weight:600;color:var(--text2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.04em;}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(26,23,18,.05);}
+.stat-row:last-child{border-bottom:none;}
+.stat-val{font-size:20px;font-weight:600;color:var(--accent);}
+.btn-export{
+  width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--r);
+  font-family:var(--sans);font-size:15px;font-weight:600;padding:16px;cursor:pointer;
+  margin-bottom:10px;transition:opacity .15s;
+}
+.btn-export:active{opacity:.85;}
+.btn-clear{
+  width:100%;background:var(--surface2);color:var(--text2);border:none;border-radius:var(--r);
+  font-family:var(--sans);font-size:14px;padding:14px;cursor:pointer;
+}
+.response-list{margin-top:16px;}
+.resp-item{
+  background:var(--surface2);border-radius:10px;padding:14px;margin-bottom:10px;
+  font-size:13px;color:var(--text2);
+}
+.resp-item strong{color:var(--text);font-size:14px;display:block;margin-bottom:4px;}
+.admin-link{
+  background:var(--accent-light);color:var(--accent-dark);border:none;border-radius:10px;
+  font-family:var(--sans);font-size:13px;padding:10px 16px;cursor:pointer;
+  display:inline-block;margin-bottom:20px;text-decoration:none;
+}
+
+/* ── THANKS ── */
+#thanks-screen{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;padding:40px 28px;text-align:center;
+}
+#thanks-screen .logo{margin-bottom:40px;}
+#thanks-screen h1{font-family:var(--serif);font-size:30px;font-weight:400;line-height:1.3;margin-bottom:12px;}
+#thanks-screen p{font-size:15px;color:var(--text2);line-height:1.7;max-width:300px;}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.fade-up{animation:fadeUp .4s ease both;}
+</style>
+</head>
+<body>
+
+<!-- WELCOME -->
+<div id="welcome" class="screen active fade-up">
+  <div class="logo">clarou</div>
+  <h1>Help us build something worth your Sunday.</h1>
+  <p>You just tried Clarou. 18 quick questions — your honest answers help us decide what to build next.</p>
+  <div class="pill-row">
+    <span class="pill">~5 minutes</span>
+    <span class="pill">No login needed</span>
+    <span class="pill">Anonymous ok</span>
+  </div>
+  <input class="name-field" id="tester-name" placeholder="Your first name (optional)" autocomplete="off"/>
+  <button class="btn-start" onclick="startForm()">Start feedback →</button>
+</div>
+
+<!-- FORM -->
+<div id="form-screen" class="screen">
+  <div class="form-header">
+    <div class="logo">clarou</div>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="progress-label" id="progress-label">Question 1 of 18</div>
+    </div>
+  </div>
+
+  <div id="form-body"></div>
+
+  <div class="submit-bar">
+    <button class="btn-submit" id="submit-btn" onclick="submitForm()">Submit feedback</button>
+  </div>
+</div>
+
+<!-- THANKS -->
+<div id="thanks-screen" class="screen">
+  <div class="logo">clarou</div>
+  <h1>Thank you.<br>Really.</h1>
+  <p>Your feedback will shape what gets built next. George will review every answer.</p>
+</div>
+
+<!-- ADMIN (hidden, access via ?admin) -->
+<div id="admin-screen" class="screen">
+  <div class="logo" style="font-family:var(--serif);font-size:24px;color:var(--accent);margin-bottom:20px;">clarou · admin</div>
+  <h1>Feedback responses</h1>
+  <p>All responses stored in this browser. Export to CSV to open in Excel.</p>
+
+  <div class="admin-card">
+    <h3>Summary</h3>
+    <div class="stat-row"><span>Total responses</span><span class="stat-val" id="stat-total">0</span></div>
+    <div class="stat-row"><span>Avg clarity score (C5)</span><span class="stat-val" id="stat-clarity">—</span></div>
+    <div class="stat-row"><span>Avg goal relevance (B1)</span><span class="stat-val" id="stat-goals">—</span></div>
+    <div class="stat-row"><span>Would pay — Yes</span><span class="stat-val" id="stat-pay">—</span></div>
+  </div>
+
+  <button class="btn-export" onclick="exportCSV()">⬇ Export all responses to CSV</button>
+  <button class="btn-clear" onclick="clearData()">Clear all data</button>
+
+  <div class="response-list" id="response-list"></div>
+</div>
+
+<script>
+// ── QUESTIONS ──────────────────────────────────────────────────────────────
+const SECTIONS = [
+  {
+    label: "First Impression",
+    qs: [
+      { id:"A1", text:"What was your very first reaction when you opened the app?", hint:"Write freely — first gut feeling", type:"text" },
+      { id:"A2", text:"Did you understand what Clarou was asking you to do?", hint:"1 = Not at all  ·  5 = Completely clear", type:"scale" },
+      { id:"A3", text:"What confused you, if anything?", hint:"A screen, a word, a step — be specific", type:"text" },
+    ]
+  },
+  {
+    label: "Goal-Setting Step",
+    qs: [
+      { id:"B1", text:"Did setting your goals (Work / Family / Health etc.) feel relevant to you?", hint:"1 = Felt pointless  ·  5 = Exactly what I needed", type:"scale" },
+      { id:"B2", text:"Were the category options right for your life, or did something feel missing?", hint:"Tell us what you'd add or remove", type:"text" },
+      { id:"B3", text:"Did the goals show up in the ritual in a useful way?", hint:"In 'Clarou Thinks' — did it feel connected or forced?", type:"text" },
+    ]
+  },
+  {
+    label: "The Sunday Ritual",
+    qs: [
+      { id:"C1", text:"Did the ritual feel too long, too short, or about right?", hint:"Pick one", type:"choice", options:["Too short","About right","Too long"] },
+      { id:"C2", text:"Which step felt most valuable?", hint:"Pick one", type:"choice", options:["Open loops","Whispers","Priorities","Your word","Actions"] },
+      { id:"C3", text:"Which step felt least useful or most awkward?", hint:"Pick one", type:"choice", options:["Open loops","Whispers","Priorities","Your word","Actions","None — all good"] },
+      { id:"C4", text:"Did 'Clarou Thinks' say anything that surprised or resonated with you?", hint:"Quote it if you remember it", type:"text" },
+      { id:"C5", text:"After finishing the ritual, did you feel clearer about your week?", hint:"1 = No different  ·  5 = Significantly clearer", type:"scale" },
+    ]
+  },
+  {
+    label: "Behaviour & Habit",
+    qs: [
+      { id:"D1", text:"Can you see yourself doing this every Sunday?", hint:"Be honest — it helps more than a polite yes", type:"choice", options:["Definitely","Maybe","Probably not","No"] },
+      { id:"D2", text:"What would make you more likely to come back every Sunday?", hint:"Reminders, shorter ritual, seeing progress — anything", type:"text" },
+    ]
+  },
+  {
+    label: "Willingness to Pay",
+    qs: [
+      { id:"E1", text:"If this was a real app, would you pay for it?", hint:"Gut answer", type:"choice", options:["Yes","Maybe","No"] },
+      { id:"E2", text:"What price per month would feel fair?", hint:"Write a number in SEK or EUR — don't overthink it", type:"text" },
+      { id:"E3", text:"What would need to be true for you to pay 250 SEK/month?", hint:"This is the most important question. Be brutal.", type:"text" },
+      { id:"E4", text:"What would make you recommend this to someone else?", hint:"Or: what would stop you?", type:"text" },
+    ]
+  },
+  {
+    label: "Open Feedback",
+    qs: [
+      { id:"F1", text:"What's the one thing you'd change about the experience?", hint:"One thing — the most important", type:"text" },
+      { id:"F2", text:"What would you tell a friend this app is for?", hint:"In your own words — not ours", type:"text" },
+      { id:"F3", text:"Anything else we should know?", hint:"Free space", type:"text" },
+    ]
+  },
+];
+
+const allQs = SECTIONS.flatMap(s => s.qs);
+let answers = {};
+let testerName = "";
+
+// ── SCREENS ────────────────────────────────────────────────────────────────
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── WELCOME ────────────────────────────────────────────────────────────────
+function startForm(){
+  testerName = document.getElementById('tester-name').value.trim() || "Anonymous";
+  renderForm();
+  show('form-screen');
+}
+
+// ── FORM RENDER ────────────────────────────────────────────────────────────
+function renderForm(){
+  const body = document.getElementById('form-body');
+  let html = '';
+  let qIndex = 0;
+
+  SECTIONS.forEach((sec, si) => {
+    html += `<div class="section-block">`;
+    html += `<div class="section-label">${sec.label}</div>`;
+
+    sec.qs.forEach(q => {
+      html += `<div class="q-block" id="qblock-${q.id}">`;
+      html += `<div class="q-text">${q.text}</div>`;
+      html += `<div class="q-hint">${q.hint}</div>`;
+
+      if(q.type === 'text'){
+        html += `<textarea class="ans" id="ans-${q.id}" placeholder="Your answer…" oninput="onAnswer('${q.id}',this.value)" rows="3"></textarea>`;
+      } else if(q.type === 'scale'){
+        html += `<div class="scale-row">`;
+        for(let i=1;i<=5;i++){
+          html += `<button class="scale-btn" id="scale-${q.id}-${i}" onclick="pickScale('${q.id}',${i})">${i}</button>`;
+        }
+        html += `</div>`;
+        html += `<div class="scale-labels"><span>Not at all</span><span>Completely</span></div>`;
+      } else if(q.type === 'choice'){
+        html += `<div class="choice-grid">`;
+        q.options.forEach(opt => {
+          const safeOpt = opt.replace(/'/g,"&#39;");
+          html += `<button class="choice-btn" id="choice-${q.id}-${safeOpt}" onclick="pickChoice('${q.id}','${safeOpt}')">${opt}</button>`;
+        });
+        html += `</div>`;
+      }
+
+      html += `</div>`; // q-block
+      qIndex++;
+    });
+
+    html += `</div>`; // section-block
+    if(si < SECTIONS.length - 1) html += `<div class="section-sep"></div>`;
+  });
+
+  body.innerHTML = html;
+  updateProgress();
+}
+
+function onAnswer(id, val){
+  answers[id] = val;
+  updateProgress();
+}
+
+function pickScale(id, val){
+  for(let i=1;i<=5;i++){
+    const btn = document.getElementById(`scale-${id}-${i}`);
+    if(btn) btn.classList.toggle('selected', i===val);
+  }
+  answers[id] = val;
+  updateProgress();
+}
+
+function pickChoice(id, val){
+  const q = allQs.find(q=>q.id===id);
+  if(!q) return;
+  q.options.forEach(opt => {
+    const safeOpt = opt.replace(/'/g,"&#39;");
+    const btn = document.getElementById(`choice-${id}-${safeOpt}`);
+    if(btn) btn.classList.toggle('selected', safeOpt===val);
+  });
+  answers[id] = val;
+  updateProgress();
+}
+
+function updateProgress(){
+  const total = allQs.length;
+  const answered = Object.keys(answers).filter(k => {
+    const v = answers[k];
+    return v !== '' && v !== null && v !== undefined;
+  }).length;
+  const pct = Math.round((answered / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `${answered} of ${total} answered`;
+  document.getElementById('submit-btn').disabled = answered < 10; // require at least 10
+}
+
+// ── SUBMIT ─────────────────────────────────────────────────────────────────
+function submitForm(){
+  const entry = {
+    id: 'r' + Date.now(),
+    ts: new Date().toISOString(),
+    name: testerName,
+    ...answers
+  };
+
+  const stored = JSON.parse(localStorage.getItem('clarou_feedback') || '[]');
+  stored.push(entry);
+  localStorage.setItem('clarou_feedback', JSON.stringify(stored));
+
+  show('thanks-screen');
+}
+
+// ── ADMIN ──────────────────────────────────────────────────────────────────
+function loadAdmin(){
+  const data = JSON.parse(localStorage.getItem('clarou_feedback') || '[]');
+
+  document.getElementById('stat-total').textContent = data.length;
+
+  if(data.length > 0){
+    const clarityScores = data.map(r=>r['C5']).filter(v=>v!=null&&v!=='');
+    const goalScores = data.map(r=>r['B1']).filter(v=>v!=null&&v!=='');
+    const payYes = data.filter(r=>r['E1']==='Yes').length;
+
+    if(clarityScores.length) document.getElementById('stat-clarity').textContent =
+      (clarityScores.reduce((a,b)=>a+ +b,0)/clarityScores.length).toFixed(1) + ' / 5';
+    if(goalScores.length) document.getElementById('stat-goals').textContent =
+      (goalScores.reduce((a,b)=>a+ +b,0)/goalScores.length).toFixed(1) + ' / 5';
+    if(data.length) document.getElementById('stat-pay').textContent =
+      Math.round((payYes/data.length)*100) + '%';
+  }
+
+  const list = document.getElementById('response-list');
+  if(data.length === 0){
+    list.innerHTML = '<p style="color:var(--text3);font-size:14px;">No responses yet.</p>';
+    return;
+  }
+  list.innerHTML = [...data].reverse().map(r=>`
+    <div class="resp-item">
+      <strong>${r.name || 'Anonymous'} · ${new Date(r.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</strong>
+      Clarity: ${r['C5']||'—'}/5 · Goals: ${r['B1']||'—'}/5 · Pay: ${r['E1']||'—'}
+      ${r['E3']?`<div style="margin-top:8px;font-style:italic;">"${r['E3'].slice(0,120)}${r['E3'].length>120?'…':''}"</div>`:''}
+    </div>`).join('');
+}
+
+function exportCSV(){
+  const data = JSON.parse(localStorage.getItem('clarou_feedback') || '[]');
+  if(data.length === 0){ alert('No responses to export yet.'); return; }
+
+  const cols = ['id','ts','name', ...allQs.map(q=>q.id)];
+  const colLabels = ['ID','Submitted','Tester name', ...allQs.map(q=>`${q.id}: ${q.text.slice(0,60)}`)];
+
+  const escape = v => {
+    if(v==null) return '';
+    const s = String(v);
+    if(s.includes(',') || s.includes('"') || s.includes('\n'))
+      return '"' + s.replace(/"/g,'""') + '"';
+    return s;
+  };
+
+  let csv = colLabels.map(escape).join(',') + '\n';
+  data.forEach(row => {
+    csv += cols.map(c => escape(row[c]||'')).join(',') + '\n';
+  });
+
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `clarou-feedback-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function clearData(){
+  if(!confirm('Delete all responses? This cannot be undone.')) return;
+  localStorage.removeItem('clarou_feedback');
+  loadAdmin();
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+(function init(){
+  if(window.location.search.includes('admin')){
+    show('admin-screen');
+    loadAdmin();
+  }
+})();
+</script>
+</body>
+</html>
